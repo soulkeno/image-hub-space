@@ -23,43 +23,58 @@ export function Carousel() {
   const navigate = useNavigate();
   const rotation = useMotionValue(0);
   const [activeIndex, setActiveIndex] = useState(0);
-  const dragStart = useRef(0);
+  const activeRef = useRef(0);
+  const dragging = useRef(false);
+  const dragStartX = useRef(0);
   const rotStart = useRef(0);
+  const movedRef = useRef(false);
+
+  const setActive = (i: number) => {
+    activeRef.current = i;
+    setActiveIndex(((i % CARDS.length) + CARDS.length) % CARDS.length);
+  };
 
   const snapTo = (index: number) => {
     const target = -index * STEP;
-    animate(rotation, target, { type: "spring", stiffness: 120, damping: 20 });
-    setActiveIndex(((index % CARDS.length) + CARDS.length) % CARDS.length);
+    animate(rotation, target, { type: "spring", stiffness: 140, damping: 22 });
+    setActive(index);
   };
 
   useEffect(() => {
-    snapTo(0);
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "ArrowRight") snapTo(activeIndex + 1);
-      if (e.key === "ArrowLeft") snapTo(activeIndex - 1);
-      if (e.key === "Enter") navigate({ to: CARDS[((activeIndex % CARDS.length) + CARDS.length) % CARDS.length].to });
+      if (e.key === "ArrowRight") snapTo(activeRef.current + 1);
+      else if (e.key === "ArrowLeft") snapTo(activeRef.current - 1);
+      else if (e.key === "Enter") {
+        const i = ((activeRef.current % CARDS.length) + CARDS.length) % CARDS.length;
+        navigate({ to: CARDS[i].to });
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeIndex]);
+  }, []);
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden">
       <div
-        className="relative h-[480px] w-full select-none"
+        className="relative h-[480px] w-full cursor-grab select-none active:cursor-grabbing"
         style={{ perspective: 1400 }}
         onPointerDown={(e) => {
-          dragStart.current = e.clientX;
+          dragging.current = true;
+          movedRef.current = false;
+          dragStartX.current = e.clientX;
           rotStart.current = rotation.get();
-          (e.target as HTMLElement).setPointerCapture(e.pointerId);
+          (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
         }}
         onPointerMove={(e) => {
-          if (e.buttons !== 1) return;
-          const delta = (e.clientX - dragStart.current) * 0.4;
-          rotation.set(rotStart.current + delta);
+          if (!dragging.current) return;
+          const dx = e.clientX - dragStartX.current;
+          if (Math.abs(dx) > 4) movedRef.current = true;
+          rotation.set(rotStart.current + dx * 0.15);
         }}
         onPointerUp={() => {
+          if (!dragging.current) return;
+          dragging.current = false;
           const current = rotation.get();
           const nearest = Math.round(-current / STEP);
           snapTo(nearest);
@@ -67,17 +82,17 @@ export function Carousel() {
       >
         <motion.div
           className="absolute left-1/2 top-1/2 h-0 w-0"
-          style={{
-            transformStyle: "preserve-3d",
-            rotateY: rotation,
-          }}
+          style={{ transformStyle: "preserve-3d", rotateY: rotation }}
         >
           {CARDS.map((card, i) => (
             <CarouselCard
               key={card.id}
               card={card}
               angle={i * STEP}
-              onEnter={() => navigate({ to: card.to })}
+              onEnter={() => {
+                if (movedRef.current) return;
+                navigate({ to: card.to });
+              }}
             />
           ))}
         </motion.div>
@@ -134,6 +149,7 @@ function CarouselCard({
         <div className="mt-3 font-serif text-xl text-white">{card.title}</div>
         <button
           type="button"
+          onPointerDown={(e) => e.stopPropagation()}
           onClick={onEnter}
           className="mt-2 border border-white/40 bg-black/40 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-white transition hover:bg-white hover:text-black"
         >
