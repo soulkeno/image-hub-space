@@ -5,10 +5,10 @@ import pfp from "@/assets/pfp.png";
 export const Route = createFileRoute("/socials")({
   head: () => ({
     meta: [
-      { title: "socials — keno" },
-      { name: "description", content: "Find keno on Discord and TikTok." },
-      { property: "og:title", content: "socials — keno" },
-      { property: "og:description", content: "Find keno on Discord and TikTok." },
+      { title: "socials — collapse" },
+      { name: "description", content: "Find collapse on Discord and TikTok." },
+      { property: "og:title", content: "socials — collapse" },
+      { property: "og:description", content: "Find collapse on Discord and TikTok." },
     ],
   }),
   component: Socials,
@@ -18,7 +18,7 @@ function Socials() {
   return (
     <TabCard
       image={pfp}
-      imageAlt="keno"
+      imageAlt="collapse"
       title="socials"
       subtitle="find me around the internet"
       buttons={[

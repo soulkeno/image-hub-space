@@ -18,8 +18,8 @@ function About() {
   return (
     <TabCard
       image={pfp}
-      imageAlt="keno"
-      title="keno"
+      imageAlt="collapse"
+      title="collapse"
       subtitle="Java Developer, also working with C++ & C#"
       buttons={[
         { label: "Socials", to: "/socials" },
