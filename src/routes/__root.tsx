@@ -4,9 +4,12 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
+import { AnimatePresence } from "framer-motion";
+import { VideoBackground } from "@/components/VideoBackground";
 
 import appCss from "../styles.css?url";
 
@@ -110,10 +113,16 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
+      <VideoBackground />
+      <AnimatePresence mode="wait">
+        <div key={pathname}>
+          <Outlet />
+        </div>
+      </AnimatePresence>
     </QueryClientProvider>
   );
 }
