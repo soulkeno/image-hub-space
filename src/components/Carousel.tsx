@@ -90,7 +90,6 @@ export function Carousel() {
               card={card}
               angle={i * STEP}
               onEnter={() => {
-                if (movedRef.current) return;
                 navigate({ to: card.to });
               }}
             />
