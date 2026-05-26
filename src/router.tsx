@@ -5,8 +5,9 @@ import { routeTree } from "./routeTree.gen";
 export const getRouter = () => {
   const queryClient = new QueryClient();
 
-  const router = createRouter({
-    routeTree,
+const router = createRouter({
+  routeTree,
+  basepath: "/image-hub-space",
     context: { queryClient },
     scrollRestoration: true,
     defaultPreloadStaleTime: 0,
